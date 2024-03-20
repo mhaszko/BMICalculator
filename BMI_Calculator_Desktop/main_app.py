@@ -1,133 +1,142 @@
-import os
-
-from kivy.app import App
-from kivy.uix.button import Button
-from kivy.uix.label import Label
-from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.textinput import TextInput
-from kivy.core.window import Window
-from kivy.uix.spinner import Spinner
-from kivy.uix.popup import Popup
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
 from utilities import *
 
-class ScreenUtility(Screen):
-    def __init__(self, **kwargs):
-        super(ScreenUtility, self).__init__(**kwargs)
-
-        #Ustawienie parametrów aplikacji:
-        self.background_color = (1, 1, 1, 1)
-        #self.size_hint = (0.8, 0.6)
-
-        self.shutdown_button = Button(
-            text='Exit',
-            size_hint=(None, None),
-            size=(100, 40),
-            pos=(Window.width - 120, Window.height - 60)
-        )
-        self.shutdown_button.bind(on_press=self.shutdown_app)
-        self.add_widget(self.shutdown_button)
-
-    @staticmethod
-    def shutdown_app():
-        Window.close()
+#Main windows creation
+window = tk.Tk()
+window.geometry('1000x300')
+window.resizable(False, False)
+window.title('BMI Calculator')
 
 
-class LoginScreen(ScreenUtility):
-    def __init__(self, **kwargs):
-        super(LoginScreen, self).__init__(**kwargs)
+#Frames definition
+menu_frame = tk.Frame(window)
+main_frame = tk.Frame(window)
 
-        self.nicks = None
+login_session=Login()
 
-        # Dodanie etykiety "Login" na środku ekranu
-        self.login_label = Label(
-            text='Login',
-            font_size=40,
-            size_hint=(None, None),
-            pos_hint={'center_x': 0.5, 'center_y': 0.6}
-        )
-        self.add_widget(self.login_label)
+class HintCombobox(ttk.Combobox):
+    def __init__(self, master=None, placeholder='', *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        self.placeholder = placeholder
+        self.placeholder_color = 'grey'
+        self.default_color=self['foreground']
 
-        # Tworzymy pole do wprowadzania tekstu
-        self.nick_input = TextInput(
-            hint_text='Enter your nick',
-            multiline=False,
-            size_hint=(None, None),
-            size=(300, 50),
-            pos_hint={'center_x': 0.4, 'center_y': 0.5}
-        )
-        self.add_widget(self.nick_input)
+        self.bind('<FocusIn>', self.focus_in)
+        self.bind('<FocusOut>', self.focus_out)
 
-        if self.nicks is None:
-            FileData.get_files()
-            self.nicks = [file_name[:-4] for file_name in FileData.filelist]
+        self.put_placeholder()
 
-        self.spinner = Spinner(
-            text='or choose saved one.',
-            values=self.nicks,
-            size_hint=(None, None),
-            size=(250, 50),
-            pos_hint = {
-                    'center_x': self.nick_input.pos_hint['center_x'] +
-                                (self.nick_input.size[0] + self.size[0] / 2) / 1000,
-                    'center_y': self.nick_input.pos_hint['center_y']}
-        )
-        self.spinner.bind(text=self.on_spinner_text)
-        self.add_widget(self.spinner)
+    def put_placeholder(self):
+        self.insert(0, self.placeholder)
+        self.config(foreground=self.placeholder_color, font=('Corbel', 12, 'italic'))
 
-        self.confirmation_button = Button(
-            text='Confirm',
-            size_hint=(None, None),
-            size=(100, 40),
-            pos_hint={'center_x': 0.5, 'center_y': self.nick_input.pos_hint['center_y'] - self.size[1] / 1000},
-            on_press=self.check_input
-        )
-        self.add_widget(self.confirmation_button)
+    def focus_in(self, event):
+        if self.get() == self.placeholder:
+            self.delete(0, 'end')
+            self.config(foreground=self.default_color, font=('Corbel', 12, 'bold'))
 
-        self.popup = Popup(
-            title='You have to insert your login ! ',
-            size_hint=(None, None),
-            size=(250, 100)
-        )
-        self.popup.content = Button(
-            text='OK !',
-            #size=(self.popup.size[0], 10),
-            on_press=self.popup.dismiss
-        )
+    def focus_out(self, event):
+        if not self.get():
+            self.put_placeholder()
 
-    def on_spinner_text(self, spinner, text):
-        # Jeśli użytkownik wybierze wartość z listy, aktualizujemy wartość w polu do wprowadzania tekstu
-        if text in spinner.values:
-            self.nick_input.text = text
-
-    def switch_screen(self, instance):
-        self.manager.current = 'second'
-
-    def check_input(self, instance):
-        if self.nick_input.text:
-            self.switch_screen(self)
-        else:
-            self.popup.open()
+    def reconfig(self, event):
+        self.config(foreground=self.default_color, font=('Corbel', 12, 'bold'))
 
 
-class SecondScreen(ScreenUtility):
-    def __init__(self, **kwargs):
-        super(SecondScreen, self).__init__(**kwargs)
-        layout = Button(text='Powrót do pierwszego ekranu', on_press=self.switch_screen)
-        self.add_widget(layout)
+FileData.get_files()
+nicks = [file_name[:-4] for file_name in FileData.filelist]
 
-    def switch_screen(self, instance):
-        self.manager.current = 'main'
+menu_frame.place(x=0, y=0, relwidth=.3, relheight=1)
+main_frame.place(relx=.3, y=0, relwidth=.7, relheight=1)
 
-class MyApp(App):
-    def build(self):
-        # Tworzymy ekran managera
-        sm = ScreenManager()
 
-        # Dodajemy ekrany do managera
-        sm.add_widget(LoginScreen(name='main'))
-        sm.add_widget(SecondScreen(name='second'))
+def combobox_selected(event):
+    login_btn.config(state='normal')
+    login_cmb.config(foreground='black', font=('Corbel', 12, 'bold'))
 
-        return sm
+def change_btn_state(event):
+    if login_cmb.get():
+        login_btn.config(state='normal')
+    else:
+        login_btn.config(state='disabled')
 
-if __name__ == '__main__':
-    MyApp().run()
+def open_popup():
+    error_pop = tk.Toplevel(window)
+    error_pop.title("Wrong input")
+    tk.Label(error_pop, text="Nick can't contain special signs !", font=('Corbel', 12, 'bold')).grid(row=0)
+    tk.Button(error_pop, text='Ok !', font=('Corbel', 12, 'bold'), command=error_pop.destroy).grid(row=1)
+
+def login():
+    if login_cmb.get().isalnum():
+        if not login_session.login_status:
+            login_session.login(login_cmb.get())
+            login_btn.config(state='disabled')
+            welcome_lb.config(text=f'Welcome {login_session.nick} !\nWhat do You want to do ?')
+    else:
+        open_popup()
+
+def parameters_popup():
+    params_popup = tk.Toplevel(window)
+    params_popup.geometry('500x150')
+    params_popup.rowconfigure((0, 1, 2, 3), weight=1)
+    params_popup.columnconfigure((0, 1, 2, 3, 4), weight=1)
+    ttk.Label(params_popup, text='Enter your height and weight:').grid(row=0, column=0, columnspan=5)
+    ttk.Label(params_popup, text='Height:').grid(row=1, column=0)
+    ttk.Spinbox(params_popup, from_=0, to=2, values=('0', '1', '2')).grid(row=1, column=1)
+    ttk.Label(params_popup, text=',').grid(row=1, column=2)
+    ttk.Spinbox(params_popup, from_=0, to=100, values=list(map(lambda x: str(x), range(0, 100)))).grid(row=1, column=3)
+    ttk.Label(params_popup, text='m').grid(row=1, column=4)
+    ttk.Label(params_popup, text='Weight:').grid(row=2, column=0)
+    ttk.Spinbox(params_popup, from_=0, to=200, values=list(map(lambda x: str(x), range(0, 200)))).grid(row=2, column=1)
+    ttk.Label(params_popup, text=',').grid(row=2, column=2)
+    ttk.Spinbox(params_popup, from_=0, to=100, values=list(map(lambda x: str(x), range(0, 100)))).grid(row=2, column=3)
+    ttk.Label(params_popup, text='kg').grid(row=2, column=4)
+    ttk.Button(params_popup, text='Confirm').grid(row=3, column=0, columnspan=5)
+
+#Preparation of image
+image = Image.open('shutterstock_1341869564.jpg').resize((300, 136))
+image_tk = ImageTk.PhotoImage(image)
+
+#Menu widget creation
+logo_lb = ttk.Label(menu_frame, image=image_tk)
+login_btn = ttk.Button(menu_frame, text='Login', state='disabled', command=login)
+login_cmb = HintCombobox(menu_frame, values=nicks, justify='center', placeholder='Please insert your nick', font=('Corbel', 12, 'italic'))
+
+#Main widgets creation
+welcome_lb = ttk.Label(main_frame, text='Welcome !', font=('Corbel', 12, 'bold'), justify='center')
+parameters_btn = ttk.Button(main_frame, text='Add measurement', command=parameters_popup)
+bmi_btn = ttk.Button(main_frame, text='Check your progress !')
+calories_btn = ttk.Button(main_frame, text='Check your demands !')
+update_btn = ttk.Button(main_frame, text='Update your reccords !')
+logout_btn = ttk.Button(main_frame, text='Logout !')
+
+#Events:
+login_cmb.bind('<<ComboboxSelected>>', combobox_selected)
+login_cmb.bind('<KeyRelease>', change_btn_state)
+
+#Menu frame configuration:
+menu_frame.columnconfigure((0), weight=1)
+menu_frame.rowconfigure((0, 1, 2, 3), weight=1)
+
+#Main frame configuration:
+main_frame.columnconfigure((0, 1), weight=1)
+main_frame.rowconfigure((0, 1, 2), weight=1)
+
+#Widgets addition to menu frame
+logo_lb.grid(row=0)
+login_cmb.grid(row=1)
+login_btn.grid(row=2)
+
+#Widgets addition to main frame
+welcome_lb.grid(row=0, column=0, columnspan=2)
+parameters_btn.grid(row=1, column=0, sticky='nsew')
+bmi_btn.grid(row=1, column=1, sticky='nsew')
+calories_btn.grid(row=1, column=2, sticky='nsew')
+update_btn.grid(row=2, column=0, columnspan=2, sticky='nsew')
+logout_btn.grid(row=2, column=2, sticky='nsew')
+
+#run
+
+window.mainloop()

@@ -5,8 +5,16 @@ import time
 class Login:
     """Class Login, made to create login instance \"session\" and manage it
     for user specified by nick parameter """
-    def __init__(self, nick):
+    _logged_user = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._logged_user is None:
+            cls._logged_user = object.__new__(cls)
+        return cls._logged_user
+
+    def __init__(self, nick=''):
         self.nick = nick
+        self.login_status = False
 
     @property
     def nick(self):
@@ -16,6 +24,18 @@ class Login:
     def nick(self, value):
         if value.isalnum():
             self._nick = value
+
+    def login(self, nick):
+        self.nick = nick
+        self.login_status = True
+
+    def logout(self):
+        self.nick = ''
+        self.login_status = False
+
+
+
+
 
 
 class Person:
