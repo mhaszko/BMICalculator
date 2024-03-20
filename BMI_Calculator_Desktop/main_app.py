@@ -45,6 +45,19 @@ class HintCombobox(ttk.Combobox):
         self.config(foreground=self.default_color, font=('Corbel', 12, 'bold'))
 
 
+class ValidationSpinbox(ttk.Spinbox):
+    def __init__(self, master=None, threshold=100, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        self.master = master
+        self.treshold = threshold
+
+        self.bind('<KeyRelease>', self.compare_value)
+
+    def compare_value(self, event):
+        if int(self.get()) >= self.treshold:
+            self.delete(0, 'end')
+            self.insert(0, str(self.treshold - 1))
+
 FileData.get_files()
 nicks = [file_name[:-4] for file_name in FileData.filelist]
 
@@ -84,14 +97,14 @@ def parameters_popup():
     params_popup.columnconfigure((0, 1, 2, 3, 4), weight=1)
     ttk.Label(params_popup, text='Enter your height and weight:').grid(row=0, column=0, columnspan=5)
     ttk.Label(params_popup, text='Height:').grid(row=1, column=0)
-    ttk.Spinbox(params_popup, from_=0, to=2, values=('0', '1', '2')).grid(row=1, column=1)
+    ValidationSpinbox(params_popup, threshold=3, values=('0', '1', '2')).grid(row=1, column=1)
     ttk.Label(params_popup, text=',').grid(row=1, column=2)
-    ttk.Spinbox(params_popup, from_=0, to=100, values=list(map(lambda x: str(x), range(0, 100)))).grid(row=1, column=3)
+    ValidationSpinbox(params_popup, threshold=100, values=list(map(lambda x: str(x), range(0, 100)))).grid(row=1, column=3)
     ttk.Label(params_popup, text='m').grid(row=1, column=4)
     ttk.Label(params_popup, text='Weight:').grid(row=2, column=0)
-    ttk.Spinbox(params_popup, from_=0, to=200, values=list(map(lambda x: str(x), range(0, 200)))).grid(row=2, column=1)
+    ValidationSpinbox(params_popup, threshold=200, values=list(map(lambda x: str(x), range(0, 200)))).grid(row=2, column=1)
     ttk.Label(params_popup, text=',').grid(row=2, column=2)
-    ttk.Spinbox(params_popup, from_=0, to=100, values=list(map(lambda x: str(x), range(0, 100)))).grid(row=2, column=3)
+    ValidationSpinbox(params_popup, threshold=100, values=list(map(lambda x: str(x), range(0, 100)))).grid(row=2, column=3)
     ttk.Label(params_popup, text='kg').grid(row=2, column=4)
     ttk.Button(params_popup, text='Confirm').grid(row=3, column=0, columnspan=5)
 
