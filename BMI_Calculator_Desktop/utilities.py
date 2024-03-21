@@ -13,7 +13,7 @@ class Login:
         return cls._logged_user
 
     def __init__(self, nick=''):
-        self.nick = nick
+        self._nick = nick
         self.login_status = False
 
     @property
