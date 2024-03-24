@@ -20,7 +20,7 @@ class MenuFrame(tk.Frame):
             self,
             text='Login',
             state='disabled',
-            command=login
+            command=self.login
         )
         FileData.get_files()
         self.nicks = [file_name[:-4] for file_name in FileData.filelist]
@@ -56,19 +56,18 @@ class MenuFrame(tk.Frame):
         else:
             self.login_btn.config(state='disabled')
 
-
     def login(self):
         if self.login_cmb.get().isalnum():
             if not self.login_session.login_status:
                 self.login_session.login(self.login_cmb.get())
                 self.login_btn.config(state='disabled')
                 self.login_cmb.config(state='disabled')
-                self.welcome_lb.config(text=f'Welcome {self.login_session.nick} !\nWhat do You want to do ?')
+                self.master.main_frame.welcome_lb.config(text=f'Welcome {self.login_session.nick} !\nWhat do You want to do ?')
         else:
             self.open_popup()
 
     def open_popup(self):
-        error_pop = tk.Toplevel(window)
+        error_pop = tk.Toplevel(self.master)
         error_pop.title("Wrong input")
         tk.Label(error_pop, text="Nick can't contain special signs !", font=('Corbel', 12, 'bold')).grid(row=0)
         tk.Button(error_pop, text='Ok !', font=('Corbel', 12, 'bold'), command=error_pop.destroy).grid(row=1)
