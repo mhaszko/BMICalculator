@@ -2,6 +2,9 @@ from tkinter import ttk
 
 
 class LoggedButton(ttk.Button):
+    """Class LoggedButton inherits from ttk.Button class.
+    It requires additional login_instance parameter during construction of it,
+     and its state depends on state of login_instance"""
     def __init__(self, master=None, login_instance=None, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         self.login_instance = login_instance

@@ -5,9 +5,12 @@ from ParametersPopup import ParametersPopup
 from LoggedButton import LoggedButton
 
 class MainFrame(tk.Frame):
+
     def __init__(self, master=None, login_session=None, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         self.login_session = login_session
+        print(self.login_session)
+        self.parameters_popup = None
         self.welcome_lb = ttk.Label(
             self,
             text='Welcome !',
@@ -54,7 +57,7 @@ class MainFrame(tk.Frame):
         self.logout_btn.grid(row=2, column=2, sticky='nsew')
 
     def open_popup(self):
-        self.parameters_popup = ParametersPopup(self.master)
+        self.parameters_popup = ParametersPopup(self.master, self.login_session)
 
 #   Defining necessary methods
     def logout(self):

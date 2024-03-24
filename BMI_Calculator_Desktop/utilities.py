@@ -42,7 +42,7 @@ class Person:
     """
     Class Person used to create person object describing parameters of persons using the BMI calculator.
     """
-    def __init__(self, height, weight, ):
+    def __init__(self, height, weight):
         self.height = height
         self.weight = weight
         self._bmi = None
@@ -85,15 +85,16 @@ class Propositions:
 
 class FileData:
     filelist = []
-    def __init__(self, login_instance):
+    def __init__(self, nick, person_instance):
         self._filename = None
         self._dirlist = None
-        self.login_instance = login_instance
+        self.nick = nick
+        self.person_instance = person_instance
 
     @property
     def filename(self):
         if self._filename is None:
-            self._filename = f'{self.login_instance.nick}.txt'
+            self._filename = f'{self.nick}.txt'
         return self._filename
     @classmethod
     def get_files(cls):

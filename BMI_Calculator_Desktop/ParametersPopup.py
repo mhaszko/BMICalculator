@@ -1,15 +1,17 @@
 import tkinter as tk
 from tkinter import ttk
 from ValidationSpinbox import ValidationSpinbox
+from utilities import Person
 
 
 class ParametersPopup(tk.Toplevel):
-    def __init__(self, master=None, *args, **kwargs):
+    def __init__(self, master=None, login_session=None, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
 #       Creation of object that will be used in ParametersPopup
         self.height = 0
         self.weight = 0
+        self.login_session = login_session
         self._params = (self.height, self.weight)
         self.params_list = ['' for i in range(5)]
         self.title('Insert your parameters !')
@@ -46,8 +48,16 @@ class ParametersPopup(tk.Toplevel):
         self.kg_lbl.grid(row=2, column=4)
         self.confirm_btn.grid(row=3, column=0, columnspan=5)
 
+
 #   Definition of methods
     def confirm(self, event):
+        self.validate_input()
+        if self._params != (0, 0):
+            self.person_instance = Person(*self.params)
+            self.open_bmi_information()
+
+
+    def validate_input(self):
         self.params_list = [self.__getattribute__(instance).get() for instance in self.__dict__.keys() if
                             isinstance(self.__getattribute__(instance), ValidationSpinbox)]
         if all(self.params_list):
@@ -60,6 +70,10 @@ class ParametersPopup(tk.Toplevel):
                 self.confirm_btn.config(state='disabled')
         else:
             self.confirm_btn.config(state='disabled')
+
+
+    def open_bmi_information(self):
+        pass
 
 #   Creation of object properties
     @property

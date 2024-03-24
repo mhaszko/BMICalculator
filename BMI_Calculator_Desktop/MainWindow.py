@@ -1,6 +1,6 @@
 import tkinter as tk
 
-from utilities import *
+from utilities import Login
 from MenuFrame import MenuFrame
 from MainFrame import MainFrame
 
