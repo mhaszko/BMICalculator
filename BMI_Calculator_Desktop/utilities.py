@@ -1,5 +1,6 @@
 import os
 import time
+from datetime import date, datetime
 
 
 class Login:
@@ -34,10 +35,6 @@ class Login:
         self.login_status = False
 
 
-
-
-
-
 class Person:
     """
     Class Person used to create person object describing parameters of persons using the BMI calculator.
@@ -54,11 +51,11 @@ class Person:
         return self._bmi
 
     def bmi_classification(self):
-        bmi = self.calculate_bmi()
+        bmi = self.bmi
         if bmi < 18.5:
             return 'Underweight'
         elif bmi < 25:
-            return  'Normal'
+            return 'Normal'
         elif bmi < 30:
             return 'Overweight'
         elif bmi < 35:
@@ -66,10 +63,6 @@ class Person:
         else:
             return 'Extremely Obese'
 
-    @property
-    def params(self):
-        return [time.ctime()] + [f'{key}: {val}' for key, val in self.__dict__.items()
-                                 if not key.startswith('_')] + [f'bmi: {self._bmi:.2f}']
 
 class Propositions:
     activity_rate = {}
@@ -88,6 +81,7 @@ class FileData:
     def __init__(self, nick, person_instance):
         self._filename = None
         self._dirlist = None
+        self._data_to_save = None
         self.nick = nick
         self.person_instance = person_instance
 
@@ -100,9 +94,20 @@ class FileData:
     def get_files(cls):
         cls.filelist = os.listdir('./users_data/')
 
-    def isuserfile(self):
-        return self._filename in FileData.filelist
+    @property
+    def params(self):
+        return ([date.today().strftime("%Y-%m-%d")] +
+                [f'{key}: {val}' for key, val in self.person_instance.__dict__.items()if not key.startswith('_')] +
+                [f'bmi: {self.person_instance.bmi:.2f}'])
 
-    def save_to_file(self, person_instance):
-        parameter_string = '|'.join(person_instance.params)
-        print(parameter_string)
+    def isuserfile(self):
+        return self.filename in FileData.filelist
+
+    def get_last_date(self):
+        with open(f'./users_data/{self.filename}', 'r') as file:
+            lines = file.readlines()
+        last_date = list(map(lambda x: int(x), lines[-1].split('|')[0].split('-')))
+        return datetime(*last_date).date()
+
+    def save_to_file(self):
+        parameter_string = '|'.join(self.params)

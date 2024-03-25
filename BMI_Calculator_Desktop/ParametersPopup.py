@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from ValidationSpinbox import ValidationSpinbox
 from utilities import Person
+from BMIWindow import BMIWindow
 
 
 class ParametersPopup(tk.Toplevel):
@@ -11,6 +12,7 @@ class ParametersPopup(tk.Toplevel):
 #       Creation of object that will be used in ParametersPopup
         self.height = 0
         self.weight = 0
+        self.person_instance = None
         self.login_session = login_session
         self._params = (self.height, self.weight)
         self.params_list = ['' for i in range(5)]
@@ -48,14 +50,12 @@ class ParametersPopup(tk.Toplevel):
         self.kg_lbl.grid(row=2, column=4)
         self.confirm_btn.grid(row=3, column=0, columnspan=5)
 
-
 #   Definition of methods
     def confirm(self, event):
         self.validate_input()
         if self._params != (0, 0):
             self.person_instance = Person(*self.params)
             self.open_bmi_information()
-
 
     def validate_input(self):
         self.params_list = [self.__getattribute__(instance).get() for instance in self.__dict__.keys() if
@@ -73,7 +73,7 @@ class ParametersPopup(tk.Toplevel):
 
 
     def open_bmi_information(self):
-        pass
+        BMIWindow(self, self.person_instance, self.login_session.nick)
 
 #   Creation of object properties
     @property
