@@ -1,33 +1,43 @@
 import tkinter as tk
 from tkinter import ttk
-from utilities import FileData
+from utilities import FileData, Person
 from datetime import datetime, date
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
+
 
 class BMIWindow(tk.Toplevel):
-    def __init__(self, master=None, person_instance=None, nick=None, *args, **kwargs):
+    def __init__(self, master=None, person_instance=None, data_instance=None, nick=None, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
-        self.geometry('1000x500')
+        #self.geometry('600x400')
         self.resizable(False, False)
         self.title('BMI')
-        self.person_instance = person_instance
-        self.person_instance.bmi
         self.nick = nick
-        self.data_instance = FileData(self.nick, self.person_instance)
+        self.data_instance = data_instance
+        self.person_instance = self.data_instance.last_record_person_instance()
         self.welcome_label = self.create_welcome_label()
         self.bmi_label = ttk.Label(
-                self,
-                text=f'Your BMI equals:\n{self.person_instance.bmi:.2f}\n'
-                     f'You are {self.person_instance.bmi_classification()}',
-                font=('Corbel', 16, 'bold'),
-                justify='center',
-                foreground=self.choose_color()
+            self,
+            text=f'Your BMI equals:\n{self.person_instance.bmi:.2f}\n'
+                f'You are {self.person_instance.bmi_classification()}',
+            font=('Corbel', 16, 'bold'),
+            justify='center',
+            foreground=self.choose_color(),
+            relief="solid"
             )
+        self.create_plot()
+        self.change_lbl = ttk.Label(
+            self,
+            text=self.get_text(),
+            font=('Corbel', 16, 'bold'),
+            justify='center'
+        )
+        self.close_btn = ttk.Button(self, text='Close', command=self.destroy)
 
-        self.columnconfigure((0, 1), weight=1)
-        self.rowconfigure((0, 1, 2), weight=1)
-
-        self.welcome_label.grid(row=0, column=1, columnspan=2, sticky='nsew')
-        self.bmi_label.grid(row=1, column=0, sticky='nsew')
+        self.welcome_label.grid(row=0, column=0, columnspan=2) #sticky='nsew')
+        self.bmi_label.grid(row=1, column=1, sticky='nsew')
+        self.change_lbl.grid(row=2, column=0, sticky='nsew')
+        self.close_btn.grid(row=2, column=1, sticky='nsew')
 
     def count_days(self):
         return date.today() - self.data_instance.get_last_date()
@@ -38,13 +48,16 @@ class BMIWindow(tk.Toplevel):
                 self,
                 text=f'Hello {self.nick} !\n It was {str(self.count_days()).split(',')[0]} since your last visit !',
                 font=('Corbel', 16, 'bold'),
+                justify='center',
+                relief="solid"
             )
         else:
             return ttk.Label(
                 self,
                 text=f'Hello {self.nick} !\n It\'s your first use of this application !',
                 justify='center',
-                font=('Corbel', 16, 'bold')
+                font=('Corbel', 16, 'bold'),
+                relief="solid"
             )
 
     def choose_color(self):
@@ -56,3 +69,46 @@ class BMIWindow(tk.Toplevel):
             return 'orange'
         else:
             return 'red'
+
+    def create_plot(self):
+        if len(self.data_instance.get_records()) > 1:
+            fig, ax = plt.subplots()
+            ax.plot(
+                self.data_instance.get_dates_from_file(),
+                self.data_instance.get_bmi_from_file(),
+                color='r',
+                label='BMI'
+            )
+            ax.plot(
+                self.data_instance.get_dates_from_file(),
+                self.data_instance.get_weight_from_file(),
+                color='g',
+                label='Weight'
+            )
+            ax.legend()
+            ax.set_title('Weight changes !', fontsize=14, fontweight='bold')
+            ax.set_xlabel('Date', fontsize=12)
+            self.bmi_plot = FigureCanvasTkAgg(fig, master=self)
+            self.bmi_plot.draw()
+            self.bmi_plot.get_tk_widget().grid(row=1, column=0)
+        else:
+            self.excuse_label = ttk.Label(
+                self,
+                text=f'If you had used this app before,\n'
+                     f' there would have been a graph showing your progress here!',
+                font=('Corbel', 16, 'bold'),
+                justify='center',
+                relief="solid"
+            )
+            self.excuse_label.grid(row=1, column=0, sticky='nsew')
+
+    def get_text(self):
+        if len(self.data_instance.get_records()) > 1:
+            last_weight = float(self.data_instance.get_weight_from_file()[-1])
+            prelast_weight = float(self.data_instance.get_weight_from_file()[-2])
+            if last_weight > prelast_weight:
+                return f'You\'ve gained {last_weight - prelast_weight:.2f} !'
+            elif last_weight == prelast_weight:
+                return 'Your weight stays the same !'
+            else:
+                return f'You\'ve lost {prelast_weight - last_weight:.2f} !'

@@ -65,6 +65,9 @@ class Person:
 
 
 class Propositions:
+    """
+    Class Propoistion i dunno yet whats the logic behind it
+    """
     activity_rate = {}
     def __init__(self, person_instance):
         self.person_instance = person_instance
@@ -77,11 +80,18 @@ class Propositions:
 
 
 class FileData:
+    """
+    Class FileData is being used to manage the saving/reading data stored in files.
+    nick :param - used to determine the file name, should be the nick out of login instance
+    person_instance :param - used to append
+    """
     filelist = []
-    def __init__(self, nick, person_instance):
+
+    def __init__(self, nick, person_instance=None):
         self._filename = None
         self._dirlist = None
         self._data_to_save = None
+        self._params = None
         self.nick = nick
         self.person_instance = person_instance
 
@@ -90,24 +100,76 @@ class FileData:
         if self._filename is None:
             self._filename = f'{self.nick}.txt'
         return self._filename
+
     @classmethod
     def get_files(cls):
         cls.filelist = os.listdir('./users_data/')
 
+    # @property
+    # def person_instance(self):
+    #     return self._person_instance
+
+    # @person_instance.setter
+    # def person_instance(self, value):
+    #     self._person_instance = value
+
+    def update_person_instance(self, value):
+        self.person_instance = value
+
     @property
     def params(self):
-        return ([date.today().strftime("%Y-%m-%d")] +
-                [f'{key}: {val}' for key, val in self.person_instance.__dict__.items()if not key.startswith('_')] +
-                [f'bmi: {self.person_instance.bmi:.2f}'])
+        if self._params is None:
+            self._params = ([date.today().strftime("%Y-%m-%d")] +
+                    [f'{key}: {val}' for key, val in self.person_instance.__dict__.items()if not key.startswith('_')] +
+                    [f'bmi: {self.person_instance.bmi:.2f}'])
+        return self._params
 
     def isuserfile(self):
         return self.filename in FileData.filelist
 
+    def get_records(self):
+        try:
+            with open(f'./users_data/{self.filename}', 'r') as file:
+                lines = file.readlines()
+        except FileNotFoundError:
+            with open(f'./users_data/{self.filename}', 'w') as file:
+                file.write('')
+                lines = []
+        return lines
+
+    def get_dates_from_file(self):
+        lines = self.get_records()
+        return list(map(lambda line: line.split('|')[0], lines))
+
+    def get_bmi_from_file(self):
+        lines = self.get_records()
+        return [line.split('|')[-1].split(' ')[-1].strip() for line in lines]
+
+    def get_height_from_file(self):
+        lines = self.get_records()
+        return [line.split('|')[1].split(' ')[-1] for line in lines]
+
+    def get_weight_from_file(self):
+        lines = self.get_records()
+        return [line.split('|')[2].split(' ')[-1] for line in lines]
+
+    def last_record_person_instance(self):
+        return Person(float(self.get_height_from_file()[-1]), float(self.get_weight_from_file()[-1]))
+
     def get_last_date(self):
-        with open(f'./users_data/{self.filename}', 'r') as file:
-            lines = file.readlines()
+        lines = self.get_records()
         last_date = list(map(lambda x: int(x), lines[-1].split('|')[0].split('-')))
         return datetime(*last_date).date()
 
+    def param_str(self):
+        return '|'.join(self.params) + '\n'
+
     def save_to_file(self):
-        parameter_string = '|'.join(self.params)
+        if self.get_records():
+            if self.get_last_date() == date.today():
+                lines = self.get_records()
+                with open(f'./users_data/{self.filename}', 'w') as file:
+                    for line in lines[:-1]:
+                        file.write(line)
+        with open(f'./users_data/{self.filename}', 'a') as file:
+            file.write(self.param_str())

@@ -60,6 +60,7 @@ class MenuFrame(tk.Frame):
         if self.login_cmb.get().isalnum():
             if not self.login_session.login_status:
                 self.login_session.login(self.login_cmb.get())
+                self.master.main_frame.data_instance = FileData(nick=self.login_session.nick)
                 self.login_btn.config(state='disabled')
                 self.login_cmb.config(state='disabled')
                 self.master.main_frame.welcome_lb.config(text=f'Welcome {self.login_session.nick} !\nWhat do You want to do ?')
