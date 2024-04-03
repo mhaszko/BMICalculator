@@ -63,20 +63,40 @@ class Person:
         else:
             return 'Extremely Obese'
 
+    def convert_height(self):
+        return self.height * 100
+
 
 class Propositions:
     """
-    Class Propoistion i dunno yet whats the logic behind it
+    Class Proposition i dunno yet whats the logic behind it
     """
-    activity_rate = {}
-    def __init__(self, person_instance):
+    activity_factors = {
+        '1': 1.4,
+        '2': 1.55,
+        '3': 1.85,
+        '4': 2.1,
+        '5': 2.3
+    }
+    def __init__(self, person_instance, age, gender, activity_rate):
         self.person_instance = person_instance
-        self._zero_calorical = None
+        self.age = age
+        self.gender = gender
+        self.activity_rate = activity_rate.split(' ')[0]
+        self._total_metabolism = None
 
     @property
-    def zero_calorical(self):
-        if self._zero_calorical is None:
-            pass
+    def total_metabolism(self):
+        if self._total_metabolism is None:
+            if self.gender == 'female':
+                self._total_metabolism = Propositions.activity_factors[self.activity_rate] * (
+                        (10 * self.person_instance.weight) + (6.25 * self.person_instance.convert_height()) -
+                        (5 * self.age) - 161)
+            else:
+                self._total_metabolism = Propositions.activity_factors[self.activity_rate] * (
+                        (10 * self.person_instance.weight) + (6.25 * self.person_instance.convert_height()) -
+                        (5 * self.age) + 5)
+        return self._total_metabolism
 
 
 class FileData:

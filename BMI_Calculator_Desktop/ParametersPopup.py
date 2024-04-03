@@ -25,14 +25,14 @@ class ParametersPopup(tk.Toplevel):
 #       Creation of object that will be used in ParametersPopup
         self.title = ttk.Label(self, text='Enter your height and weight:')
         self.height_lbl = ttk.Label(self, text='Height:')
-        self.meters = ValidationSpinbox(self, threshold=3, values=('0', '1', '2'))
+        self.meters = ValidationSpinbox(self, upper_threshold=3, values=('0', '1', '2'))
         self.coma = ttk.Label(self, text=',')
-        self.centimeters = ValidationSpinbox(self, threshold=100, values=list(map(lambda x: str(x), range(0, 100))))
+        self.centimeters = ValidationSpinbox(self, upper_threshold=100, values=list(map(lambda x: str(x), range(0, 100))))
         self.meters_lbl = ttk.Label(self, text='m')
         self.weight_lbl = ttk.Label(self, text='Weight:')
-        self.kg = ValidationSpinbox(self, threshold=200, values=list(map(lambda x: str(x), range(0, 200))))
+        self.kg = ValidationSpinbox(self, upper_threshold=200, values=list(map(lambda x: str(x), range(0, 200))))
         self.coma_2 = ttk.Label(self, text=',')
-        self.grams = ValidationSpinbox(self, threshold=100, values=list(map(lambda x: str(x), range(0, 100))))
+        self.grams = ValidationSpinbox(self, upper_threshold=100, values=list(map(lambda x: str(x), range(0, 100))))
         self.kg_lbl = ttk.Label(self, text='kg')
         self.confirm_btn = ttk.Button(self, text='Confirm', state='disabled')
 

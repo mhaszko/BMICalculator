@@ -4,6 +4,7 @@ from tkinter import ttk
 from ParametersPopup import ParametersPopup
 from LoggedButton import LoggedButton
 from BMIWindow import BMIWindow
+from ARQuestion import ARQuestion
 from utilities import FileData
 
 class MainFrame(tk.Frame):
@@ -35,7 +36,8 @@ class MainFrame(tk.Frame):
         self.calories_btn = LoggedButton(
             self,
             login_instance=self.login_session,
-            text='Check your needs !'
+            text='Check your needs !',
+            command=self.open_needs_information
         )
         self.update_btn = LoggedButton(
             self,
@@ -74,6 +76,12 @@ class MainFrame(tk.Frame):
                 data_instance=self.data_instance,
                 nick=self.login_session.nick
             )
+        else:
+            self.info_window()
+
+    def open_needs_information(self):
+        if self.data_instance.get_records():
+            self.ar_question = ARQuestion(self, self.data_instance, self.login_session.nick)
         else:
             self.info_window()
 
