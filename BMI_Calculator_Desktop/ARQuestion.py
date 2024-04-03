@@ -5,7 +5,13 @@ from ValidationSpinbox import ValidationSpinbox
 from utilities import Propositions
 from MetabolismWindow import MetabolismWindow
 
+
 class ARQuestion(tk.Toplevel):
+    """
+    Class ARQuestion inherits from tk.TopLevel and adds specific widgets for specific use inside BMICalculator.
+    :param data_instance: takes data_instance created for specific user after login
+    :param nick: takes nick variable out of login_instance made for specific user after login
+    """
 
     def __init__(self, master, data_instance, nick, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -15,6 +21,7 @@ class ARQuestion(tk.Toplevel):
         self.gender = None
         self.ar = None
         self.propositions_instance = None
+        #Creating widgets that will be inside this question window
         self.main_label = ttk.Label(
             self,
             text='To check your energy demand,'
@@ -69,8 +76,7 @@ class ARQuestion(tk.Toplevel):
         )
         self.confirm_btn.bind('<Button>', self.confirm)
 
-        #self.cancel_btn = ttk.Button(self, text='Cancel', command=self.cancel)
-
+        #Putting the widgets into the window
         self.main_label.grid(row=0, column=0, columnspan=2)
         self.age_lbl.grid(row=1, column=0)
         self.age_spinbox.grid(row=1, column=1, sticky='ew')
@@ -79,11 +85,8 @@ class ARQuestion(tk.Toplevel):
         self.activity_lbl.grid(row=3, column=0)
         self.activity_rate.grid(row=3, column=1, sticky='ew')
         self.confirm_btn.grid(row=4, column=1)
-        #self.cancel_btn.grid(row=4, column=1)
 
-    def cancel(self):
-        self.destroy()
-
+    #Defining confirm method used to confirm chosen by user params, and open MetabolismWindow
     def confirm(self, event):
         params_list = [self.__getattribute__(instance).get() for instance in self.__dict__.keys() if
                             isinstance(self.__getattribute__(instance), ValidationSpinbox) or

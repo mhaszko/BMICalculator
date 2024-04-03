@@ -7,14 +7,20 @@ from BMIWindow import BMIWindow
 from ARQuestion import ARQuestion
 from utilities import FileData
 
-class MainFrame(tk.Frame):
 
+class MainFrame(tk.Frame):
+    """
+    Class MainFrame inherits from tk.Frame and adds specific widgets for specific use inside BMICalculator.
+    :param login_session: takes login_session created after login. This param is used to
+    control the state of logged buttons inside this frame
+    """
     def __init__(self, master=None, login_session=None, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         self.login_session = login_session
         self._data_instance = None
         self.parameters_popup = None
         self.bmi_window = None
+        #Creating specific widgets
         self.welcome_lb = ttk.Label(
             self,
             text='Welcome !',
@@ -39,11 +45,6 @@ class MainFrame(tk.Frame):
             text='Check your needs !',
             command=self.open_needs_information
         )
-        self.update_btn = LoggedButton(
-            self,
-            login_instance=self.login_session,
-            text='Update your records !'
-        )
         self.logout_btn = LoggedButton(
             self,
             login_instance=self.login_session,
@@ -58,10 +59,10 @@ class MainFrame(tk.Frame):
         self.welcome_lb.grid(row=0, column=0, columnspan=2)
         self.parameters_btn.grid(row=1, column=0, sticky='nsew')
         self.bmi_btn.grid(row=1, column=1, sticky='nsew')
-        self.calories_btn.grid(row=1, column=2, sticky='nsew')
-        self.update_btn.grid(row=2, column=0, columnspan=2, sticky='nsew')
-        self.logout_btn.grid(row=2, column=2, sticky='nsew')
+        self.calories_btn.grid(row=2, column=0, sticky='nsew')
+        self.logout_btn.grid(row=2, column=1, sticky='nsew')
 
+    #Defining necessary methods
     def open_popup(self):
         self.parameters_popup = ParametersPopup(
             master=self.master,
@@ -85,14 +86,15 @@ class MainFrame(tk.Frame):
         else:
             self.info_window()
 
-#   Defining necessary methods
     def logout(self):
         self.login_session.logout()
+        FileData.get_files()
         self.master.menu_frame.login_btn.config(state='normal')
         self.master.menu_frame.login_cmb.config(state='normal')
+        self.master.menu_frame.login_cmb.config(values=[file_name[:-4] for file_name in FileData.filelist])
         self.data_instance = None
-        FileData.get_files()
         self.welcome_lb.config(text=f'Cya !\nThank You for using this app !')
+
 
     def info_window(self):
         self._info_window = tk.Toplevel(self)

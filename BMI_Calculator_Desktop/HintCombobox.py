@@ -2,8 +2,10 @@ from tkinter import ttk
 
 
 class HintCombobox(ttk.Combobox):
-    """Class HintCombobox inherits from ttk.Combobox class.
-    It adds hint about what should be put into to the combobox to standard Combobox functionalities"""
+    """
+    Class HintCombobox inherits from ttk.Combobox class.
+    :param placeholder: takes the text that should be put inside combobox as hint
+    """
     def __init__(self, master=None, placeholder='', *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         self.placeholder = placeholder

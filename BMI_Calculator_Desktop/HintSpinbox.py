@@ -2,8 +2,10 @@ from tkinter import ttk
 
 
 class HintSpinbox(ttk.Spinbox):
-    """Class HintSpinbox inherits from ttk.Spinbox class.
-    It adds hint about what can be chosen via spinbox to standard Combobox functionalities"""
+    """
+    Class HintSpinbox inherits from ttk.Spinbox class.
+    :param placeholder: takes the text that should be put inside spinbox as hint
+    """
     def __init__(self, master=None, placeholder='', *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         self.placeholder = placeholder

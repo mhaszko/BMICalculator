@@ -7,7 +7,12 @@ import matplotlib.pyplot as plt
 
 
 class BMIWindow(tk.Toplevel):
-    def __init__(self, master=None, person_instance=None, data_instance=None, nick=None, *args, **kwargs):
+    """
+    Class BMIWindow inherits from tk.TopLevel and adds specific widgets for specific use inside BMICalculator.
+    :param data_instance: takes data_instance created for specific user after login
+    :param nick: takes nick variable out of login_instance made for specific user after login
+    """
+    def __init__(self, master=None, data_instance=None, nick=None, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
         #self.geometry('600x400')
         self.resizable(False, False)
@@ -15,6 +20,7 @@ class BMIWindow(tk.Toplevel):
         self.nick = nick
         self.data_instance = data_instance
         self.person_instance = self.data_instance.last_record_person_instance()
+        ##Creating widgets that will be used inside this window
         self.welcome_label = self.create_welcome_label()
         self.bmi_label = ttk.Label(
             self,
@@ -34,15 +40,24 @@ class BMIWindow(tk.Toplevel):
         )
         self.close_btn = ttk.Button(self, text='Close', command=self.destroy)
 
+        # Putting the widgets into the window
         self.welcome_label.grid(row=0, column=0, columnspan=2) #sticky='nsew')
         self.bmi_label.grid(row=1, column=1, sticky='nsew')
         self.change_lbl.grid(row=2, column=0, sticky='nsew')
         self.close_btn.grid(row=2, column=1, sticky='nsew')
 
+    #Defining necessary methods
     def count_days(self):
+        """
+        :return: difference between current date and date of last app usage obtained from data_instance
+        """
         return date.today() - self.data_instance.get_last_date()
 
     def create_welcome_label(self):
+        """
+        :return: Specific welcome label with calculated days from last usage of app if the app was used before, or
+        only welcome label without calculated days if its first use of this app
+        """
         if self.data_instance.isuserfile():
             return ttk.Label(
                 self,
@@ -61,6 +76,9 @@ class BMIWindow(tk.Toplevel):
             )
 
     def choose_color(self):
+        """
+        :return: Color of bmi classification label, according to bmi value.
+        """
         if self.person_instance.bmi_classification() == 'Underweight':
             return 'yellow'
         elif self.person_instance.bmi_classification() == 'Normal':
@@ -71,6 +89,10 @@ class BMIWindow(tk.Toplevel):
             return 'red'
 
     def create_plot(self):
+        """
+        Creates graph that displays user's progress if user updated his params for more than once,
+        else creates the excuse label.
+        """
         if len(self.data_instance.get_records()) > 1:
             fig, ax = plt.subplots()
             ax.plot(
@@ -103,6 +125,9 @@ class BMIWindow(tk.Toplevel):
             self.excuse_label.grid(row=1, column=0, sticky='nsew')
 
     def get_text(self):
+        """
+        :return: text to change_lbl, according to change of user's weight
+        """
         if len(self.data_instance.get_records()) > 1:
             last_weight = float(self.data_instance.get_weight_from_file()[-1])
             prelast_weight = float(self.data_instance.get_weight_from_file()[-2])

@@ -6,6 +6,11 @@ from HintCombobox import HintCombobox
 
 
 class MenuFrame(tk.Frame):
+    """
+    Class MenuFrame inherits from tk.Frame and adds specific widgets for specific use inside BMICalculator.
+    :param login_session: takes login_session created after login. This param is used to
+    control the state of logged buttons inside this frame
+    """
     def __init__(self, master=None, login_session=None, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 #   Creating objects of menu frame
