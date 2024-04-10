@@ -161,7 +161,11 @@ class FileData:
         Class method used to update class's filelist attribute
         :return: None
         """
-        cls.filelist = os.listdir('./users_data/')
+        try:
+            cls.filelist = os.listdir('./users_data/')
+        except FileNotFoundError:
+            os.mkdir('./users_data/')
+            cls.filelist = []
 
     def update_person_instance(self, value: Person):
         """
