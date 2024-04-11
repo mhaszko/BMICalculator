@@ -24,5 +24,5 @@ To run the application, the following dependencies are required:
 To run the application, execute the `App.py` file using Python:
 
 ```bash
-python App.py
+python src/App.py
 ```
